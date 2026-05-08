@@ -1,0 +1,318 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins', sans-serif;
+}
+
+body{
+    background:#fff0f5;
+    color:#333;
+}
+
+/* NAVBAR */
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 50px;
+    background:#ff69b4;
+    color:white;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+    font-size:32px;
+    font-weight:bold;
+    color:white;
+}
+
+nav ul{
+    display:flex;
+    gap:25px;
+    list-style:none;
+}
+
+nav a{
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+    transition:0.3s;
+}
+
+nav a:hover{
+    color:#ffe4ec;
+}
+
+/* HERO */
+
+.hero{
+    height:90vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+
+    background:
+    linear-gradient(rgba(255,105,180,0.5),
+    rgba(255,182,193,0.5)),
+
+    url('https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1600&auto=format&fit=crop');
+
+    background-size:cover;
+    background-position:center;
+
+    color:white;
+}
+
+.hero h1{
+    font-size:65px;
+    margin-bottom:20px;
+    text-shadow:2px 2px 10px rgba(0,0,0,0.4);
+}
+
+.hero p{
+    font-size:24px;
+    margin-bottom:30px;
+    max-width:700px;
+    line-height:1.5;
+}
+
+.hero button{
+    padding:15px 35px;
+    border:none;
+    background:white;
+    color:#ff1493;
+    font-size:18px;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.hero button:hover{
+    background:#ff1493;
+    color:white;
+    transform:scale(1.05);
+}
+
+/* EVENTS */
+
+.events-section{
+    padding:70px 50px;
+}
+
+.events-section h2{
+    text-align:center;
+    margin-bottom:40px;
+    font-size:42px;
+    color:#ff1493;
+}
+
+.events-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
+.event-card{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 6px 15px rgba(255,105,180,0.2);
+    transition:0.3s;
+    border:2px solid #ffe4ec;
+}
+
+.event-card:hover{
+    transform:translateY(-8px);
+}
+
+.event-card h3{
+    margin-bottom:15px;
+    color:#ff1493;
+}
+
+.event-card p{
+    margin:10px 0;
+}
+
+.event-card button{
+    margin-top:15px;
+    padding:12px 20px;
+    border:none;
+    background:#ff69b4;
+    color:white;
+    border-radius:30px;
+    cursor:pointer;
+    width:100%;
+    font-size:16px;
+    transition:0.3s;
+}
+
+.event-card button:hover{
+    background:#ff1493;
+}
+
+/* BOOKING */
+
+.booking-section{
+    padding:70px 50px;
+    background:white;
+}
+
+.booking-section h2{
+    text-align:center;
+    margin-bottom:40px;
+    font-size:42px;
+    color:#ff1493;
+}
+
+form{
+    max-width:600px;
+    margin:auto;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    background:#fff0f5;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 6px 15px rgba(255,105,180,0.2);
+}
+
+form label{
+    font-weight:bold;
+    color:#ff1493;
+}
+
+form input,
+form select{
+    padding:14px;
+    border:2px solid #ffc0cb;
+    border-radius:10px;
+    font-size:16px;
+    outline:none;
+}
+
+form input:focus,
+form select:focus{
+    border-color:#ff1493;
+}
+
+form button{
+    padding:15px;
+    background:#ff69b4;
+    color:white;
+    border:none;
+    border-radius:30px;
+    cursor:pointer;
+    font-size:18px;
+    transition:0.3s;
+}
+
+form button:hover{
+    background:#ff1493;
+}
+
+/* MESSAGE */
+
+#bookingMessage{
+    text-align:center;
+    margin-top:25px;
+    font-size:24px;
+    color:#ff1493;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+    padding:70px 50px;
+}
+
+.dashboard h2{
+    text-align:center;
+    margin-bottom:40px;
+    font-size:42px;
+    color:#ff1493;
+}
+
+.cards{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.card{
+    background:white;
+    width:220px;
+    padding:30px;
+    text-align:center;
+    border-radius:20px;
+    box-shadow:0 6px 15px rgba(255,105,180,0.2);
+    border:2px solid #ffe4ec;
+}
+
+.card h3{
+    font-size:40px;
+    color:#ff1493;
+    margin-bottom:10px;
+}
+
+/* CONTACT */
+
+.contact-section{
+    padding:60px;
+    background:#ff69b4;
+    color:white;
+    text-align:center;
+}
+
+.contact-section h2{
+    margin-bottom:20px;
+    font-size:36px;
+}
+
+.contact-section p{
+    margin:10px 0;
+    font-size:18px;
+}
+
+/* FOOTER */
+
+footer{
+    background:#ff1493;
+    color:white;
+    text-align:center;
+    padding:18px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+    nav{
+        flex-direction:column;
+        gap:15px;
+    }
+
+    .hero h1{
+        font-size:42px;
+    }
+
+    .hero p{
+        font-size:18px;
+        padding:0 20px;
+    }
+
+    .events-section,
+    .booking-section,
+    .dashboard{
+        padding:50px 20px;
+    }
+}

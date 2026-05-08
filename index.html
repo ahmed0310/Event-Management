@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav>
+
+        <div class="logo">
+            EMS</div>
+
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="#booking">Booking</a></li>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+
+    </nav>
+
+    <!-- HERO SECTION -->
+
+    <section class="hero" id="home">
+
+        <h1>Event Management System</h1>
+
+        <p>
+            Book Conferences, Festivals, Sports & Entertainment Events Easily
+        </p>
+
+        <button onclick="scrollToEvents()">
+            Explore Events
+        </button>
+
+    </section>
+
+    <!-- EVENTS SECTION -->
+
+    <section class="events-section" id="events">
+
+        <h2>Available Events</h2>
+
+        <div class="events-container">
+
+            <!-- EVENT 1 -->
+
+            <div class="event-card">
+
+                <h3>Tech Summit 2025</h3>
+
+                <p><b>Date:</b> 2025-06-15</p>
+
+                <p><b>Time:</b> 10:00 AM</p>
+
+                <p><b>Venue:</b> Pearl Continental Hall</p>
+
+                <p><b>City:</b> Lahore</p>
+
+                <p><b>Type:</b> Conference</p>
+
+                <p><b>Budget:</b> 500000</p>
+
+                <button onclick="selectEvent('Tech Summit 2025')">
+                    Book Now
+                </button>
+
+            </div>
+
+            <!-- EVENT 2 -->
+
+            <div class="event-card">
+
+                <h3>Music Festival</h3>
+
+                <p><b>Date:</b> 2025-07-20</p>
+
+                <p><b>Time:</b> 06:00 PM</p>
+
+                <p><b>Venue:</b> Expo Centre</p>
+
+                <p><b>City:</b> Karachi</p>
+
+                <p><b>Type:</b> Entertainment</p>
+
+                <p><b>Budget:</b> 800000</p>
+
+                <button onclick="selectEvent('Music Festival')">
+                    Book Now
+                </button>
+
+            </div>
+
+            <!-- EVENT 3 -->
+
+            <div class="event-card">
+
+                <h3>Business Expo</h3>
+
+                <p><b>Date:</b> 2025-08-10</p>
+
+                <p><b>Time:</b> 09:00 AM</p>
+
+                <p><b>Venue:</b> Jinnah Convention Centre</p>
+
+                <p><b>City:</b> Islamabad</p>
+
+                <p><b>Type:</b> Exhibition</p>
+
+                <p><b>Budget:</b> 600000</p>
+
+                <button onclick="selectEvent('Business Expo')">
+                    Book Now
+                </button>
+
+            </div>
+
+            <!-- EVENT 4 -->
+
+            <div class="event-card">
+
+                <h3>Food Carnival</h3>
+
+                <p><b>Date:</b> 2025-09-05</p>
+
+                <p><b>Time:</b> 12:00 PM</p>
+
+                <p><b>Venue:</b> Faletti Hotel Ballroom</p>
+
+                <p><b>City:</b> Lahore</p>
+
+                <p><b>Type:</b> Festival</p>
+
+                <p><b>Budget:</b> 400000</p>
+
+                <button onclick="selectEvent('Food Carnival')">
+                    Book Now
+                </button>
+
+            </div>
+
+            <!-- EVENT 5 -->
+
+            <div class="event-card">
+
+                <h3>Sports Gala</h3>
+
+                <p><b>Date:</b> 2025-10-01</p>
+
+                <p><b>Time:</b> 08:00 AM</p>
+
+                <p><b>Venue:</b> Serena Hotel Hall</p>
+
+                <p><b>City:</b> Quetta</p>
+
+                <p><b>Type:</b> Sports</p>
+
+                <p><b>Budget:</b> 350000</p>
+
+                <button onclick="selectEvent('Sports Gala')">
+                    Book Now
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- BOOKING SECTION -->
+
+    <section class="booking-section" id="booking">
+
+        <h2>Book Your Event</h2>
+
+        <form id="bookingForm">
+
+            <label>Customer Name</label>
+
+            <input type="text" id="customerName" required>
+
+            <label>Email Address</label>
+
+            <input type="email" required>
+
+            <label>Phone Number</label>
+
+            <input type="tel" required>
+
+            <label>Select Event</label>
+
+            <select id="eventSelect" required>
+
+                <option value="">Choose Event</option>
+
+                <option>Tech Summit 2025</option>
+
+                <option>Music Festival</option>
+
+                <option>Business Expo</option>
+
+                <option>Food Carnival</option>
+
+                <option>Sports Gala</option>
+
+            </select>
+
+            <label>Select Venue</label>
+
+            <select required>
+
+                <option>Pearl Continental Hall</option>
+
+                <option>Expo Centre</option>
+
+                <option>Jinnah Convention Centre</option>
+
+                <option>Faletti Hotel Ballroom</option>
+
+                <option>Serena Hotel Hall</option>
+
+            </select>
+
+            <label>Select Date</label>
+
+            <input type="date" required>
+
+            <label>Select Time</label>
+
+            <input type="time" required>
+
+            <label>Ticket Type</label>
+
+            <select required>
+
+                <option>VIP</option>
+
+                <option>Regular</option>
+
+            </select>
+
+            <label>Number of Tickets</label>
+
+            <input type="number" min="1" value="1">
+
+            <label>Payment Method</label>
+
+            <select required>
+
+                <option>Card</option>
+
+                <option>Cash</option>
+
+                <option>Online</option>
+
+            </select>
+
+            <button type="submit">
+                Confirm Booking
+            </button>
+
+        </form>
+
+        <div id="bookingMessage"></div>
+
+    </section>
+
+    <!-- DASHBOARD -->
+
+    <section class="dashboard" id="dashboard">
+
+        <h2>Dashboard Analytics</h2>
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h3>5</h3>
+
+                <p>Total Events</p>
+
+            </div>
+
+            <div class="card">
+
+                <h3>8</h3>
+
+                <p>Tickets Sold</p>
+
+            </div>
+
+            <div class="card">
+
+                <h3>6</h3>
+
+                <p>Total Sponsors</p>
+
+            </div>
+
+            <div class="card">
+
+                <h3>6</h3>
+
+                <p>Total Staff</p>
+
+            </div>
+
+            <div class="card">
+
+                <h3>5000+</h3>
+
+                <p>Total Participants</p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- CONTACT -->
+
+    <section class="contact-section" id="contact">
+
+        <h2>Contact Us</h2>
+        
+        <p>Email: eventmanagement@gmail.com</p>
+
+        <p>Phone: +92 300 1234567</p>
+
+        <p>Location: Faisalabad, Pakistan</p>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <p>
+            © 2026 Event Management System | FAST Database Project
+        </p>
+
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

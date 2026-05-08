@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Event Management</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+        }
+        .login-box input {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .login-box button {
+            padding: 10px 20px;
+            background: #e91e63;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #adminContent {
+            display: none;
+            padding: 40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            color: black;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #e91e63;
+            color: white;
+        }
+        .admin-section {
+            margin-bottom: 50px;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            color: black;
+            max-width: 600px;
+        }
+        form input, form select, form button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        form button {
+            background: #e91e63;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+            <button onclick="checkLogin()">Login</button>
+            <p id="loginError" style="color:red; display:none;">Incorrect Password</p>
+        </div>
+    </div>
+
+    <!-- Admin Content -->
+    <div id="adminContent">
+        <h1 style="text-align: center; margin-bottom: 40px; color: #e91e63;">Admin Dashboard</h1>
+
+        <div class="admin-section">
+            <h2>Add New Event</h2>
+            <form id="addEventForm">
+                <label>Event Name</label>
+                <input type="text" id="eventName" required>
+
+                <label>Event Date</label>
+                <input type="date" id="eventDate" required>
+
+                <label>Event Time</label>
+                <input type="time" id="eventTime" required>
+
+                <label>Event Type</label>
+                <select id="eventType" required>
+                    <option value="Conference">Conference</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Exhibition">Exhibition</option>
+                    <option value="Festival">Festival</option>
+                    <option value="Sports">Sports</option>
+                </select>
+
+                <label>Budget (PKR)</label>
+                <input type="number" id="eventBudget" required min="1000">
+
+                <label>Venue</label>
+                <select id="eventVenue" required></select>
+
+                <label>Organizer</label>
+                <select id="eventOrganizer" required></select>
+
+                <button type="submit">Create Event</button>
+            </form>
+            <p id="eventMessage" style="color: green; margin-top: 10px;"></p>
+        </div>
+
+        <div class="admin-section">
+            <h2>Recent Bookings</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Participant</th>
+                        <th>Email</th>
+                        <th>Event</th>
+                        <th>Event Date</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Booking Date</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
