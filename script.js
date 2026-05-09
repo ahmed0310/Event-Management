@@ -79,7 +79,7 @@ document.getElementById('bookingForm')
 
 
 // ===============================
-// 🔹 LOAD DASHBOARD DATA
+// 🔹 LOAD DASHBOARD DATA (with PL/SQL Functions)
 // ===============================
 function loadDashboard(){
 
@@ -87,15 +87,73 @@ function loadDashboard(){
     .then(res => res.json())
     .then(data => {
 
-        const cards = document.querySelectorAll('.card h3');
+        document.getElementById('totalEvents').innerText = data.events;
+        document.getElementById('ticketsSold').innerText = data.tickets;
+        document.getElementById('totalSponsors').innerText = data.sponsors;
+        document.getElementById('totalStaff').innerText = data.staff;
+        document.getElementById('totalParticipants').innerText = data.participants;
 
-        if(cards.length >= 5){
-            cards[0].innerText = data.events;
-            cards[1].innerText = data.tickets;
-            cards[2].innerText = data.sponsors;
-            cards[3].innerText = data.staff;
-            cards[4].innerText = data.participants;
+        // Load event revenues using PL/SQL functions
+        loadEventRevenues();
+    })
+    .catch(err => console.log(err));
+}
+
+// ===============================
+// 🔹 LOAD EVENT REVENUES (PL/SQL Function: fnCalculateTotalEventRevenue)
+// ===============================
+function loadEventRevenues(){
+    fetch("http://localhost:3000/events")
+    .then(res => res.json())
+    .then(events => {
+        
+        const tableBody = document.getElementById('revenueTableBody');
+        tableBody.innerHTML = '';
+
+        if(events.length === 0){
+            tableBody.innerHTML = '<tr><td colspan="4" style="padding: 10px; text-align: center;">No events available</td></tr>';
+            return;
         }
+
+        // Load revenue for each event using PL/SQL function
+        const revenuePromises = events.map(event => {
+            return fetch(`http://localhost:3000/plsql/eventRevenue/${event.event_id}`)
+                .then(res => res.json())
+                .then(data => {
+                    return {
+                        eventId: event.event_id,
+                        eventName: event.event_name,
+                        organizerName: event.organizer_id || 'Unknown',
+                        revenue: data.totalRevenue || 0,
+                        ticketCount: 0
+                    };
+                })
+                .catch(err => ({
+                    eventId: event.event_id,
+                    eventName: event.event_name,
+                    organizerName: 'Unknown',
+                    revenue: 0,
+                    ticketCount: 0
+                }));
+        });
+
+        Promise.all(revenuePromises)
+        .then(revenues => {
+            // Sort by revenue descending and take top 5
+            revenues.sort((a, b) => b.revenue - a.revenue);
+            
+            revenues.slice(0, 5).forEach(rev => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${rev.eventName}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Event Org</td>
+                        <td style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">PKR ${rev.revenue.toLocaleString()}</td>
+                        <td style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">-</td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 }

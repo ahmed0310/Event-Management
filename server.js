@@ -263,6 +263,326 @@ app.post('/admin/events', async (req, res) => {
   }
 });
 
+// ===============================
+// PHASE 4: PL/SQL PROCEDURES & FUNCTIONS
+// ===============================
+
+// ===============================
+// PROCEDURE 1: Register Participant (with validation)
+// ===============================
+app.post('/plsql/registerParticipant', async (req, res) => {
+  const { fullName, gender, email, phone, address } = req.body;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Call PL/SQL Procedure
+    const result = await connection.execute(
+      `BEGIN procRegisterParticipant(:fullName, :gender, :email, :phone, :address); END;`,
+      {
+        fullName: fullName,
+        gender: gender,
+        email: email,
+        phone: phone,
+        address: address
+      }
+    );
+
+    res.json({ success: true, message: 'Participant registered successfully!' });
+  } catch (err) {
+    console.error('Register Error:', err);
+    
+    // Check for specific error messages from PL/SQL
+    if (err.message.includes('Invalid gender')) {
+      res.status(400).json({ error: 'Invalid gender. Must be M or F.' });
+    } else if (err.message.includes('Email already registered')) {
+      res.status(400).json({ error: 'Email already registered.' });
+    } else {
+      res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// PROCEDURE 2: Process Payment (with ticket booking)
+// ===============================
+app.post('/plsql/processPayment', async (req, res) => {
+  const { participantId, ticketIds, totalAmount, paymentMethod } = req.body;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Call PL/SQL Procedure
+    await connection.execute(
+      `BEGIN procProcessPayment(:participantId, :ticketIds, :totalAmount, :paymentMethod); END;`,
+      {
+        participantId: participantId,
+        ticketIds: ticketIds.join(','),
+        totalAmount: totalAmount,
+        paymentMethod: paymentMethod
+      }
+    );
+
+    res.json({ success: true, message: 'Payment processed successfully!' });
+  } catch (err) {
+    console.error('Payment Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// FUNCTION: Calculate Total Event Revenue
+// ===============================
+app.get('/plsql/eventRevenue/:eventId', async (req, res) => {
+  const { eventId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    const result = await connection.execute(
+      `SELECT fnCalculateTotalEventRevenue(:eventId) AS revenue FROM DUAL`,
+      [eventId]
+    );
+
+    const revenue = result.rows[0][0];
+    res.json({ eventId: eventId, totalRevenue: revenue });
+  } catch (err) {
+    console.error('Revenue Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// FUNCTION: Get Event Organizer Name
+// ===============================
+app.get('/plsql/eventOrganizer/:eventId', async (req, res) => {
+  const { eventId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    const result = await connection.execute(
+      `SELECT fnGetEventOrganizerName(:eventId) AS organizerName FROM DUAL`,
+      [eventId]
+    );
+
+    const organizerName = result.rows[0][0];
+    res.json({ eventId: eventId, organizerName: organizerName });
+  } catch (err) {
+    console.error('Organizer Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// FUNCTION: Get Participant Ticket Count
+// ===============================
+app.get('/plsql/participantTickets/:participantId', async (req, res) => {
+  const { participantId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    const result = await connection.execute(
+      `SELECT fnGetParticipantTicketCount(:participantId) AS ticketCount FROM DUAL`,
+      [participantId]
+    );
+
+    const ticketCount = result.rows[0][0];
+    res.json({ participantId: participantId, ticketCount: ticketCount });
+  } catch (err) {
+    console.error('Ticket Count Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// ADMIN: Get Event Summary (Package Procedure)
+// ===============================
+app.get('/admin/plsql/eventSummary/:eventId', async (req, res) => {
+  const { eventId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Call Package Procedure
+    const eventDetails = await connection.execute(
+      `SELECT event_id, event_name, event_date, event_time, event_type, budget, venue_id, organizer_id
+       FROM Event WHERE event_id = :eventId`,
+      [eventId],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if (eventDetails.rows.length === 0) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const event = eventDetails.rows[0];
+    const revenue = await connection.execute(
+      `SELECT fnCalculateTotalEventRevenue(:eventId) AS revenue FROM DUAL`,
+      [eventId]
+    );
+
+    res.json({
+      eventId: event.EVENT_ID,
+      eventName: event.EVENT_NAME,
+      eventDate: event.EVENT_DATE,
+      eventTime: event.EVENT_TIME,
+      eventType: event.EVENT_TYPE,
+      budget: event.BUDGET,
+      revenue: revenue.rows[0][0],
+      profit: revenue.rows[0][0] - event.BUDGET
+    });
+  } catch (err) {
+    console.error('Event Summary Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// ADMIN: Get Venue Occupancy Report (Cursor-based)
+// ===============================
+app.get('/admin/plsql/venueOccupancy/:venueId', async (req, res) => {
+  const { venueId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Get venue details and events
+    const venueRes = await connection.execute(
+      `SELECT venue_id, venue_name, capacity, location FROM Venue WHERE venue_id = :venueId`,
+      [venueId],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if (venueRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Venue not found' });
+    }
+
+    const venue = venueRes.rows[0];
+
+    // Get events at this venue
+    const eventsRes = await connection.execute(
+      `SELECT event_id, event_name, TO_CHAR(event_date, 'YYYY-MM-DD') AS event_date,
+              (SELECT COUNT(*) FROM Ticket WHERE event_id = Event.event_id) AS attendees
+       FROM Event WHERE venue_id = :venueId ORDER BY event_date DESC`,
+      [venueId],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    res.json({
+      venue: {
+        venueId: venue.VENUE_ID,
+        venueName: venue.VENUE_NAME,
+        capacity: venue.CAPACITY,
+        location: venue.LOCATION
+      },
+      events: eventsRes.rows.map(row => ({
+        eventId: row.EVENT_ID,
+        eventName: row.EVENT_NAME,
+        eventDate: row.EVENT_DATE,
+        attendees: row.ATTENDEES || 0,
+        occupancyRate: `${Math.round((row.ATTENDEES || 0) / venue.CAPACITY * 100)}%`
+      }))
+    });
+  } catch (err) {
+    console.error('Venue Occupancy Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// ADMIN: Bulk Ticket Generation (Package Procedure)
+// ===============================
+app.post('/admin/plsql/bulkTicketGeneration', async (req, res) => {
+  const { eventId, quantity, ticketType, price } = req.body;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    let generatedTickets = 0;
+    for (let i = 0; i < quantity; i++) {
+      const newTicketIdRes = await connection.execute(`SELECT NVL(MAX(ticket_id), 0) + 1 FROM Ticket`);
+      const ticketId = newTicketIdRes.rows[0][0];
+
+      await connection.execute(
+        `INSERT INTO Ticket (ticket_id, event_id, ticket_type, price, booking_date)
+         VALUES (:1, :2, :3, :4, SYSDATE)`,
+        [ticketId, eventId, ticketType, price]
+      );
+      generatedTickets++;
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Generated ${generatedTickets} tickets successfully!`,
+      ticketsGenerated: generatedTickets
+    });
+  } catch (err) {
+    console.error('Bulk Generation Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// ADMIN: Calculate Event Profit (Package Function)
+// ===============================
+app.get('/admin/plsql/eventProfit/:eventId', async (req, res) => {
+  const { eventId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Get event budget and revenue
+    const eventRes = await connection.execute(
+      `SELECT budget FROM Event WHERE event_id = :eventId`,
+      [eventId]
+    );
+
+    if (eventRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const budget = eventRes.rows[0][0];
+    const revenueRes = await connection.execute(
+      `SELECT fnCalculateTotalEventRevenue(:eventId) AS revenue FROM DUAL`,
+      [eventId]
+    );
+
+    const revenue = revenueRes.rows[0][0];
+    const profit = revenue - budget;
+
+    res.json({
+      eventId: eventId,
+      budget: budget,
+      revenue: revenue,
+      profit: profit,
+      profitMargin: `${(profit / revenue * 100).toFixed(2)}%`
+    });
+  } catch (err) {
+    console.error('Profit Calculation Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });

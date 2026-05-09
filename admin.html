@@ -152,6 +152,139 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- NEW: Register Participant using PL/SQL Procedure -->
+        <div class="admin-section">
+            <h2>Register New Participant (PL/SQL Procedure)</h2>
+            <form id="registerParticipantForm">
+                <label>Full Name</label>
+                <input type="text" id="participantName" required>
+
+                <label>Gender (M/F)</label>
+                <select id="participantGender" required>
+                    <option value="">Select Gender</option>
+                    <option value="M">Male (M)</option>
+                    <option value="F">Female (F)</option>
+                </select>
+
+                <label>Email</label>
+                <input type="email" id="participantEmail" required>
+
+                <label>Phone Number</label>
+                <input type="tel" id="participantPhone" required>
+
+                <label>Address</label>
+                <input type="text" id="participantAddress" required>
+
+                <button type="submit">Register Participant</button>
+            </form>
+            <p id="participantMessage" style="color: green; margin-top: 10px;"></p>
+        </div>
+
+        <!-- NEW: Event Analytics & Revenue (PL/SQL Functions) -->
+        <div class="admin-section">
+            <h2>Event Analytics (PL/SQL Functions)</h2>
+            <div style="margin-bottom: 20px;">
+                <label>Select Event for Analysis:</label>
+                <select id="analyticsEventSelect" style="width: 100%; padding: 10px; border: 1px solid #ccc;">
+                    <option value="">Loading events...</option>
+                </select>
+                <button onclick="loadEventAnalytics()" style="width: 100%; padding: 10px; margin-top: 10px; background: #e91e63; color: white; border: none; cursor: pointer;">Load Analytics</button>
+            </div>
+
+            <div id="analyticsContainer" style="background: white; padding: 20px; border-radius: 10px; color: black; display: none;">
+                <h3 id="analyticsEventName"></h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+                        <p style="color: #999; font-size: 12px;">BUDGET</p>
+                        <h3 id="eventBudgetDisplay">-</h3>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+                        <p style="color: #999; font-size: 12px;">TOTAL REVENUE (fnCalculateTotalEventRevenue)</p>
+                        <h3 id="eventRevenueDisplay">-</h3>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+                        <p style="color: #999; font-size: 12px;">PROFIT</p>
+                        <h3 id="eventProfitDisplay">-</h3>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+                        <p style="color: #999; font-size: 12px;">PROFIT MARGIN</p>
+                        <h3 id="eventMarginDisplay">-</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Venue Occupancy Report (PL/SQL Cursor) -->
+        <div class="admin-section">
+            <h2>Venue Occupancy Report (PL/SQL Cursor)</h2>
+            <div style="margin-bottom: 20px;">
+                <label>Select Venue:</label>
+                <select id="venueSelect" style="width: 100%; padding: 10px; border: 1px solid #ccc;">
+                    <option value="">Loading venues...</option>
+                </select>
+                <button onclick="loadVenueOccupancy()" style="width: 100%; padding: 10px; margin-top: 10px; background: #e91e63; color: white; border: none; cursor: pointer;">Generate Report</button>
+            </div>
+
+            <div id="occupancyContainer" style="background: white; padding: 20px; border-radius: 10px; color: black; display: none;">
+                <h3 id="venueNameDisplay"></h3>
+                <p id="venueDetailsDisplay"></p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="background: #e91e63; color: white;">
+                            <th style="padding: 10px; text-align: left;">Event</th>
+                            <th style="padding: 10px; text-align: left;">Date</th>
+                            <th style="padding: 10px; text-align: center;">Attendees</th>
+                            <th style="padding: 10px; text-align: right;">Occupancy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="occupancyTableBody">
+                        <tr>
+                            <td colspan="4" style="padding: 10px; text-align: center;">No data</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- NEW: Bulk Ticket Generation (PL/SQL Package) -->
+        <div class="admin-section">
+            <h2>Bulk Ticket Generation (PL/SQL Package)</h2>
+            <form id="bulkTicketForm">
+                <label>Event</label>
+                <select id="bulkEventSelect" required></select>
+
+                <label>Ticket Type</label>
+                <select id="bulkTicketType" required>
+                    <option value="VIP">VIP</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Standard">Standard</option>
+                </select>
+
+                <label>Price per Ticket (PKR)</label>
+                <input type="number" id="bulkTicketPrice" required min="100" value="2000">
+
+                <label>Quantity to Generate</label>
+                <input type="number" id="bulkQuantity" required min="1" max="1000" value="50">
+
+                <button type="submit">Generate Bulk Tickets</button>
+            </form>
+            <p id="bulkTicketMessage" style="color: green; margin-top: 10px;"></p>
+        </div>
+
+        <!-- NEW: Participant Ticket Count (PL/SQL Function) -->
+        <div class="admin-section">
+            <h2>Check Participant Bookings (fnGetParticipantTicketCount)</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="number" id="participantCheckId" placeholder="Enter Participant ID" style="flex: 1; padding: 10px; border: 1px solid #ccc;">
+                <button onclick="checkParticipantTickets()" style="padding: 10px 20px; background: #e91e63; color: white; border: none; cursor: pointer;">Check Tickets</button>
+            </div>
+            <div id="participantTicketsResult" style="background: white; padding: 15px; border-radius: 5px; color: black; display: none;">
+                <h4 id="participantResultName"></h4>
+                <p style="font-size: 24px; color: #e91e63; margin: 10px 0;" id="ticketCountResult">-</p>
+                <p style="color: #666;">Total tickets booked by this participant</p>
+            </div>
+        </div>
     </div>
 
     <script src="admin.js"></script>

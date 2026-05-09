@@ -278,13 +278,13 @@
 
     <section class="dashboard" id="dashboard">
 
-        <h2>Dashboard Analytics</h2>
+        <h2>Dashboard Analytics (Live from PL/SQL)</h2>
 
         <div class="cards">
 
             <div class="card">
 
-                <h3>5</h3>
+                <h3 id="totalEvents">-</h3>
 
                 <p>Total Events</p>
 
@@ -292,7 +292,7 @@
 
             <div class="card">
 
-                <h3>8</h3>
+                <h3 id="ticketsSold">-</h3>
 
                 <p>Tickets Sold</p>
 
@@ -300,7 +300,7 @@
 
             <div class="card">
 
-                <h3>6</h3>
+                <h3 id="totalSponsors">-</h3>
 
                 <p>Total Sponsors</p>
 
@@ -308,7 +308,7 @@
 
             <div class="card">
 
-                <h3>6</h3>
+                <h3 id="totalStaff">-</h3>
 
                 <p>Total Staff</p>
 
@@ -316,12 +316,32 @@
 
             <div class="card">
 
-                <h3>5000+</h3>
+                <h3 id="totalParticipants">-</h3>
 
                 <p>Total Participants</p>
 
             </div>
 
+        </div>
+
+        <!-- Event Revenue Section -->
+        <div style="margin-top: 40px; background: #f5f5f5; padding: 20px; border-radius: 10px;">
+            <h3>Top Events by Revenue (PL/SQL Functions)</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <thead>
+                    <tr style="background: #e91e63; color: white;">
+                        <th style="padding: 10px; text-align: left;">Event Name</th>
+                        <th style="padding: 10px; text-align: left;">Organizer</th>
+                        <th style="padding: 10px; text-align: right;">Total Revenue</th>
+                        <th style="padding: 10px; text-align: right;">Tickets Sold</th>
+                    </tr>
+                </thead>
+                <tbody id="revenueTableBody">
+                    <tr>
+                        <td colspan="4" style="padding: 10px; text-align: center;">Loading revenue data...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
     </section>
