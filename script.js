@@ -79,7 +79,7 @@ document.getElementById('bookingForm')
 
 
 // ===============================
-// 🔹 LOAD DASHBOARD DATA (with PL/SQL Functions)
+// 🔹 LOAD DASHBOARD DATA
 // ===============================
 function loadDashboard(){
 
@@ -87,81 +87,44 @@ function loadDashboard(){
     .then(res => res.json())
     .then(data => {
 
-        document.getElementById('totalEvents').innerText = data.events;
-        document.getElementById('ticketsSold').innerText = data.tickets;
-        document.getElementById('totalSponsors').innerText = data.sponsors;
-        document.getElementById('totalStaff').innerText = data.staff;
-        document.getElementById('totalParticipants').innerText = data.participants;
+        const cards = document.querySelectorAll('.card h3');
 
-        // Load event revenues using PL/SQL functions
-        loadEventRevenues();
-    })
-    .catch(err => console.log(err));
-}
-
-// ===============================
-// 🔹 LOAD EVENT REVENUES (PL/SQL Function: fnCalculateTotalEventRevenue)
-// ===============================
-function loadEventRevenues(){
-    fetch("http://localhost:3000/events")
-    .then(res => res.json())
-    .then(events => {
-        
-        const tableBody = document.getElementById('revenueTableBody');
-        tableBody.innerHTML = '';
-
-        if(events.length === 0){
-            tableBody.innerHTML = '<tr><td colspan="4" style="padding: 10px; text-align: center;">No events available</td></tr>';
-            return;
+        if(cards.length >= 5){
+            animateCounter(cards[0], data.events);
+            animateCounter(cards[1], data.tickets);
+            animateCounter(cards[2], data.sponsors);
+            animateCounter(cards[3], data.staff);
+            animateCounter(cards[4], data.participants);
         }
-
-        // Load revenue for each event using PL/SQL function
-        const revenuePromises = events.map(event => {
-            return fetch(`http://localhost:3000/plsql/eventRevenue/${event.event_id}`)
-                .then(res => res.json())
-                .then(data => {
-                    return {
-                        eventId: event.event_id,
-                        eventName: event.event_name,
-                        organizerName: event.organizer_id || 'Unknown',
-                        revenue: data.totalRevenue || 0,
-                        ticketCount: 0
-                    };
-                })
-                .catch(err => ({
-                    eventId: event.event_id,
-                    eventName: event.event_name,
-                    organizerName: 'Unknown',
-                    revenue: 0,
-                    ticketCount: 0
-                }));
-        });
-
-        Promise.all(revenuePromises)
-        .then(revenues => {
-            // Sort by revenue descending and take top 5
-            revenues.sort((a, b) => b.revenue - a.revenue);
-            
-            revenues.slice(0, 5).forEach(rev => {
-                tableBody.innerHTML += `
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${rev.eventName}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Event Org</td>
-                        <td style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">PKR ${rev.revenue.toLocaleString()}</td>
-                        <td style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">-</td>
-                    </tr>
-                `;
-            });
-        })
-        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 }
 
 
 // ===============================
-// 🔹 OPTIONAL: LOAD EVENTS FROM DB
-// (agar tum dynamic cards chahte ho)
+// 🔹 COUNTER ANIMATION
+// ===============================
+function animateCounter(element, target) {
+    const duration = 1200;
+    const startTime = Date.now();
+
+    function update() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(target * ease);
+        element.textContent = current.toLocaleString();
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    requestAnimationFrame(update);
+}
+
+
+// ===============================
+// 🔹 LOAD EVENTS FROM DB
 // ===============================
 function loadEventsFromDB(){
 
@@ -175,17 +138,19 @@ function loadEventsFromDB(){
 
         container.innerHTML = "";
 
-        data.forEach(e => {
+        data.forEach((e, i) => {
+
+            const delay = i < 5 ? `reveal-delay-${i}` : '';
 
             container.innerHTML += `
-            <div class="event-card">
+            <div class="event-card reveal ${delay}">
                 <h3>${e.event_name}</h3>
                 <p><b>Date:</b> ${e.event_date}</p>
                 <p><b>Time:</b> ${e.event_time}</p>
                 <p><b>Venue:</b> ${e.venue_name}</p>
                 <p><b>City:</b> ${e.location}</p>
                 <p><b>Type:</b> ${e.event_type}</p>
-                <p><b>Budget:</b> ${e.budget}</p>
+                <p><b>Budget:</b> ${Number(e.budget).toLocaleString()} PKR</p>
                 <button onclick="selectEvent('${e.event_name}')">
                     Book Now
                 </button>
@@ -193,8 +158,52 @@ function loadEventsFromDB(){
             `;
         });
 
+        // Re-init scroll observer for new cards
+        initScrollReveal();
     })
     .catch(err => console.log(err));
+}
+
+
+// ===============================
+// 🔹 SCROLL REVEAL (Intersection Observer)
+// ===============================
+function initScrollReveal() {
+    const reveals = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -40px 0px'
+    });
+
+    reveals.forEach(el => {
+        // Reset so re-added elements can animate
+        el.classList.remove('visible');
+        observer.observe(el);
+    });
+}
+
+
+// ===============================
+// 🔹 NAVBAR SCROLL EFFECT
+// ===============================
+function initNavbarScroll() {
+    const nav = document.getElementById('mainNav');
+    if (!nav) return;
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 80) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
 }
 
 
@@ -205,5 +214,7 @@ window.onload = function(){
 
     loadDashboard();
     loadEventsFromDB();
+    initScrollReveal();
+    initNavbarScroll();
 
 };
