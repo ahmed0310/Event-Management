@@ -1,5 +1,8 @@
-const ADMIN_PASSWORD = "admin"; // Simple hardcoded password for demonstration
+const ADMIN_PASSWORD = "admin";
 
+// ===============================
+// LOGIN
+// ===============================
 function checkLogin() {
     const pwd = document.getElementById('adminPassword').value;
     if (pwd === ADMIN_PASSWORD) {
@@ -8,18 +11,119 @@ function checkLogin() {
         loadAdminData();
     } else {
         document.getElementById('loginError').style.display = 'block';
+        document.getElementById('adminPassword').style.borderColor = '#ff1744';
+        setTimeout(() => {
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('adminPassword').style.borderColor = '';
+        }, 3000);
     }
 }
 
+// ===============================
+// PAGE NAVIGATION
+// ===============================
+function showPage(pageName) {
+    // Hide all pages
+    document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+    // Show selected page
+    const target = document.getElementById('page-' + pageName);
+    if (target) {
+        target.classList.add('active');
+        // Re-trigger animation
+        target.style.animation = 'none';
+        target.offsetHeight; // force reflow
+        target.style.animation = '';
+    }
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+}
+
+// ===============================
+// LOAD ALL ADMIN DATA
+// ===============================
 function loadAdminData() {
+    loadDashboardStats();
     loadVenues();
     loadOrganizers();
     loadBookings();
+    loadOverviewBookings();
     loadAnalyticsEvents();
     loadVenuesForOccupancy();
     loadEventsForBulkTickets();
 }
 
+// ===============================
+// DASHBOARD STATS
+// ===============================
+function loadDashboardStats() {
+    fetch("http://localhost:3000/dashboard")
+        .then(res => res.json())
+        .then(data => {
+            animateCounter('statEvents', data.events);
+            animateCounter('statTickets', data.tickets);
+            animateCounter('statSponsors', data.sponsors);
+            animateCounter('statStaff', data.staff);
+            animateCounter('statParticipants', data.participants);
+        })
+        .catch(err => console.error(err));
+}
+
+// Counter animation
+function animateCounter(elementId, target) {
+    const el = document.getElementById(elementId);
+    const duration = 1000;
+    const startTime = Date.now();
+    const start = 0;
+
+    function update() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease-out cubic
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (target - start) * ease);
+        el.textContent = current.toLocaleString();
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    requestAnimationFrame(update);
+}
+
+// ===============================
+// OVERVIEW BOOKINGS (Recent 5)
+// ===============================
+function loadOverviewBookings() {
+    fetch("http://localhost:3000/admin/bookings")
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('overviewBookingsBody');
+            tbody.innerHTML = '';
+            const recent = data.slice(0, 5);
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No bookings yet</td></tr>';
+                return;
+            }
+            recent.forEach(b => {
+                const badgeClass = b.ticket_type === 'VIP' ? 'badge-vip' : 'badge-regular';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${b.ticket_id}</td>
+                        <td>${b.participant_name}</td>
+                        <td>${b.event_name}</td>
+                        <td><span class="badge-pill ${badgeClass}">${b.ticket_type}</span></td>
+                        <td class="price-tag">${Number(b.price).toLocaleString()} PKR</td>
+                        <td>${b.booking_date}</td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => console.error(err));
+}
+
+// ===============================
+// VENUES DROPDOWN
+// ===============================
 function loadVenues() {
     fetch("http://localhost:3000/venues")
         .then(res => res.json())
@@ -33,6 +137,9 @@ function loadVenues() {
         .catch(err => console.error(err));
 }
 
+// ===============================
+// ORGANIZERS DROPDOWN
+// ===============================
 function loadOrganizers() {
     fetch("http://localhost:3000/organizers")
         .then(res => res.json())
@@ -46,13 +153,21 @@ function loadOrganizers() {
         .catch(err => console.error(err));
 }
 
+// ===============================
+// ALL BOOKINGS TABLE
+// ===============================
 function loadBookings() {
     fetch("http://localhost:3000/admin/bookings")
         .then(res => res.json())
         .then(data => {
             const tbody = document.getElementById('bookingsTableBody');
             tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No bookings found</td></tr>';
+                return;
+            }
             data.forEach(b => {
+                const badgeClass = b.ticket_type === 'VIP' ? 'badge-vip' : 'badge-regular';
                 tbody.innerHTML += `
                     <tr>
                         <td>${b.ticket_id}</td>
@@ -60,8 +175,8 @@ function loadBookings() {
                         <td>${b.participant_email}</td>
                         <td>${b.event_name}</td>
                         <td>${b.event_date}</td>
-                        <td>${b.ticket_type}</td>
-                        <td>${b.price} PKR</td>
+                        <td><span class="badge-pill ${badgeClass}">${b.ticket_type}</span></td>
+                        <td class="price-tag">${Number(b.price).toLocaleString()} PKR</td>
                         <td>${b.booking_date}</td>
                     </tr>
                 `;
@@ -70,9 +185,11 @@ function loadBookings() {
         .catch(err => console.error(err));
 }
 
+// ===============================
+// ADD EVENT
+// ===============================
 document.getElementById('addEventForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const data = {
         event_name: document.getElementById('eventName').value,
         event_date: document.getElementById('eventDate').value,
@@ -90,24 +207,20 @@ document.getElementById('addEventForm').addEventListener('submit', function(e) {
     })
     .then(res => res.json())
     .then(response => {
-        document.getElementById('eventMessage').innerText = "✅ " + response.message;
+        showToast('eventMessage', '✅ ' + response.message, 'success');
         document.getElementById('addEventForm').reset();
     })
     .catch(err => {
         console.error(err);
-        document.getElementById('eventMessage').innerText = "❌ Failed to create event.";
-        document.getElementById('eventMessage').style.color = "red";
+        showToast('eventMessage', '❌ Failed to create event.', 'error');
     });
 });
 
 // ===============================
-// PHASE 4: PL/SQL FRONTEND INTEGRATION
+// REGISTER PARTICIPANT
 // ===============================
-
-// 1. REGISTER PARTICIPANT (PL/SQL Procedure: procRegisterParticipant)
 document.getElementById('registerParticipantForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const data = {
         fullName: document.getElementById('participantName').value,
         gender: document.getElementById('participantGender').value,
@@ -124,8 +237,7 @@ document.getElementById('registerParticipantForm').addEventListener('submit', fu
     .then(res => res.json())
     .then(response => {
         if(response.success) {
-            document.getElementById('participantMessage').innerText = "✅ " + response.message;
-            document.getElementById('participantMessage').style.color = "green";
+            showToast('participantMessage', '✅ ' + response.message, 'success');
             document.getElementById('registerParticipantForm').reset();
         } else {
             throw new Error(response.error);
@@ -133,12 +245,13 @@ document.getElementById('registerParticipantForm').addEventListener('submit', fu
     })
     .catch(err => {
         console.error(err);
-        document.getElementById('participantMessage').innerText = "❌ " + err.message;
-        document.getElementById('participantMessage').style.color = "red";
+        showToast('participantMessage', '❌ ' + err.message, 'error');
     });
 });
 
-// 2. LOAD EVENTS FOR ANALYTICS
+// ===============================
+// EVENT ANALYTICS
+// ===============================
 function loadAnalyticsEvents() {
     fetch("http://localhost:3000/events")
     .then(res => res.json())
@@ -152,22 +265,24 @@ function loadAnalyticsEvents() {
     .catch(err => console.error(err));
 }
 
-// 3. LOAD EVENT ANALYTICS (PL/SQL Functions: fnCalculateTotalEventRevenue, fnGetEventOrganizerName)
 function loadEventAnalytics() {
     const eventId = document.getElementById('analyticsEventSelect').value;
-    if(!eventId) {
-        alert('Please select an event');
-        return;
-    }
+    if(!eventId) { alert('Please select an event'); return; }
 
     fetch(`http://localhost:3000/admin/plsql/eventSummary/${eventId}`)
     .then(res => res.json())
     .then(data => {
-        document.getElementById('analyticsEventName').innerText = data.eventName;
+        document.getElementById('analyticsEventName').innerText = '📊 ' + data.eventName;
         document.getElementById('eventBudgetDisplay').innerText = `PKR ${data.budget.toLocaleString()}`;
         document.getElementById('eventRevenueDisplay').innerText = `PKR ${data.revenue.toLocaleString()}`;
-        document.getElementById('eventProfitDisplay').innerText = `PKR ${data.profit.toLocaleString()}`;
-        document.getElementById('eventMarginDisplay').innerText = `${((data.profit / data.revenue) * 100).toFixed(2)}%`;
+        
+        const profit = data.profit;
+        const profitEl = document.getElementById('eventProfitDisplay');
+        profitEl.innerText = `PKR ${profit.toLocaleString()}`;
+        profitEl.className = 'metric-value ' + (profit >= 0 ? 'green' : 'danger');
+        
+        const margin = data.revenue > 0 ? ((profit / data.revenue) * 100).toFixed(1) : 0;
+        document.getElementById('eventMarginDisplay').innerText = `${margin}%`;
         document.getElementById('analyticsContainer').style.display = 'block';
     })
     .catch(err => {
@@ -176,7 +291,9 @@ function loadEventAnalytics() {
     });
 }
 
-// 4. LOAD VENUES FOR OCCUPANCY REPORT
+// ===============================
+// VENUE OCCUPANCY
+// ===============================
 function loadVenuesForOccupancy() {
     fetch("http://localhost:3000/venues")
     .then(res => res.json())
@@ -190,34 +307,30 @@ function loadVenuesForOccupancy() {
     .catch(err => console.error(err));
 }
 
-// 5. LOAD VENUE OCCUPANCY (PL/SQL Cursor-based Procedure)
 function loadVenueOccupancy() {
     const venueId = document.getElementById('venueSelect').value;
-    if(!venueId) {
-        alert('Please select a venue');
-        return;
-    }
+    if(!venueId) { alert('Please select a venue'); return; }
 
     fetch(`http://localhost:3000/admin/plsql/venueOccupancy/${venueId}`)
     .then(res => res.json())
     .then(data => {
-        document.getElementById('venueNameDisplay').innerText = data.venue.venueName;
+        document.getElementById('venueNameDisplay').innerText = '🏛 ' + data.venue.venueName;
         document.getElementById('venueDetailsDisplay').innerText = 
-            `Capacity: ${data.venue.capacity} | Location: ${data.venue.location}`;
+            `Capacity: ${data.venue.capacity} seats  |  Location: ${data.venue.location}`;
         
         const tbody = document.getElementById('occupancyTableBody');
         tbody.innerHTML = '';
         
         if(data.events.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="padding: 10px; text-align: center;">No events at this venue</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No events at this venue</td></tr>';
         } else {
             data.events.forEach(event => {
                 tbody.innerHTML += `
                     <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${event.eventName}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${event.eventDate}</td>
-                        <td style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">${event.attendees}</td>
-                        <td style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd; color: #e91e63; font-weight: bold;">${event.occupancyRate}</td>
+                        <td>${event.eventName}</td>
+                        <td>${event.eventDate}</td>
+                        <td style="text-align:center;">${event.attendees}</td>
+                        <td class="price-tag" style="text-align:right;">${event.occupancyRate}</td>
                     </tr>
                 `;
             });
@@ -230,7 +343,9 @@ function loadVenueOccupancy() {
     });
 }
 
-// 6. LOAD EVENTS FOR BULK TICKET GENERATION
+// ===============================
+// BULK TICKETS
+// ===============================
 function loadEventsForBulkTickets() {
     fetch("http://localhost:3000/events")
     .then(res => res.json())
@@ -244,10 +359,8 @@ function loadEventsForBulkTickets() {
     .catch(err => console.error(err));
 }
 
-// 7. BULK TICKET GENERATION (PL/SQL Package Procedure)
 document.getElementById('bulkTicketForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const data = {
         eventId: document.getElementById('bulkEventSelect').value,
         ticketType: document.getElementById('bulkTicketType').value,
@@ -262,34 +375,43 @@ document.getElementById('bulkTicketForm').addEventListener('submit', function(e)
     })
     .then(res => res.json())
     .then(response => {
-        document.getElementById('bulkTicketMessage').innerText = "✅ " + response.message;
-        document.getElementById('bulkTicketMessage').style.color = "green";
+        showToast('bulkTicketMessage', '✅ ' + response.message, 'success');
         document.getElementById('bulkTicketForm').reset();
     })
     .catch(err => {
         console.error(err);
-        document.getElementById('bulkTicketMessage').innerText = "❌ Failed to generate tickets.";
-        document.getElementById('bulkTicketMessage').style.color = "red";
+        showToast('bulkTicketMessage', '❌ Failed to generate tickets.', 'error');
     });
 });
 
-// 8. CHECK PARTICIPANT TICKETS (PL/SQL Function: fnGetParticipantTicketCount)
+// ===============================
+// PARTICIPANT LOOKUP
+// ===============================
 function checkParticipantTickets() {
     const participantId = document.getElementById('participantCheckId').value;
-    if(!participantId) {
-        alert('Please enter a Participant ID');
-        return;
-    }
+    if(!participantId) { alert('Please enter a Participant ID'); return; }
 
     fetch(`http://localhost:3000/plsql/participantTickets/${participantId}`)
     .then(res => res.json())
     .then(data => {
         document.getElementById('ticketCountResult').innerText = data.ticketCount;
-        document.getElementById('participantResultName').innerText = `Participant ID: ${data.participantId}`;
+        document.getElementById('participantResultName').innerText = `Participant #${data.participantId}`;
         document.getElementById('participantTicketsResult').style.display = 'block';
     })
     .catch(err => {
         console.error(err);
         alert('Error checking participant tickets');
     });
+}
+
+// ===============================
+// TOAST HELPER
+// ===============================
+function showToast(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    el.textContent = message;
+    el.className = 'msg-toast ' + type;
+    setTimeout(() => {
+        el.className = 'msg-toast';
+    }, 5000);
 }
