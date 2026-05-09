@@ -376,12 +376,35 @@
             <div class="admin-page" id="page-lookup">
                 <div class="top-bar">
                     <h1>Participant Lookup</h1>
-                    <div class="badge">🔍 fnGetParticipantTicketCount</div>
+                    <div class="badge">🔍 Detailed Ticket Info</div>
                 </div>
 
+                <!-- Participant Directory -->
                 <div class="glass-card">
                     <div class="card-header">
-                        <h3>Check Participant Bookings</h3>
+                        <h3>Participant Directory</h3>
+                        <span class="tag">Quick Reference</span>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participantDirectoryBody">
+                            <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Search Box -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h3>Search by Participant ID</h3>
                         <span class="tag">PL/SQL Function</span>
                     </div>
                     <div class="lookup-row">
@@ -391,17 +414,44 @@
                         </div>
                         <button type="button" class="btn-primary" onclick="checkParticipantTickets()" style="margin-bottom:0;">🔍 Search</button>
                     </div>
+
+                    <!-- Results Section -->
                     <div id="participantTicketsResult" style="display:none;">
-                        <div class="analytics-grid" style="grid-template-columns: 1fr 1fr;">
+                        <!-- Participant Info -->
+                        <div class="analytics-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 20px;">
                             <div class="analytics-item">
-                                <div class="metric-label">Participant</div>
+                                <div class="metric-label">Name</div>
                                 <div class="metric-value" id="participantResultName" style="font-size:18px;">—</div>
                             </div>
                             <div class="analytics-item">
-                                <div class="metric-label">Total Tickets Booked</div>
+                                <div class="metric-label">Email</div>
+                                <div class="metric-value" id="participantResultEmail" style="font-size:14px; word-break:break-all;">—</div>
+                            </div>
+                            <div class="analytics-item">
+                                <div class="metric-label">Total Tickets</div>
                                 <div class="metric-value pink" id="ticketCountResult">—</div>
                             </div>
                         </div>
+
+                        <!-- Ticket Details Table -->
+                        <h4 style="margin-bottom: 12px; color: var(--text-secondary);">📋 Booking Details</h4>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticket #</th>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Venue</th>
+                                    <th>City</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Booked On</th>
+                                </tr>
+                            </thead>
+                            <tbody id="participantTicketDetailsBody">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

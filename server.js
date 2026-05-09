@@ -586,6 +586,82 @@ app.get('/admin/plsql/eventProfit/:eventId', async (req, res) => {
   }
 });
 
+// ===============================
+// GET ALL PARTICIPANTS (for Lookup directory)
+// ===============================
+app.get('/admin/participants', async (req, res) => {
+  let connection;
+  try {
+    connection = await getConnection();
+    const result = await connection.execute(
+      `SELECT participant_id, full_name, email, phone_number FROM Participant ORDER BY participant_id ASC`,
+      [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const rows = result.rows.map(row => {
+      const r = {};
+      for (let key in row) r[key.toLowerCase()] = row[key];
+      return r;
+    });
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
+// ===============================
+// GET PARTICIPANT TICKET DETAILS (full info)
+// ===============================
+app.get('/admin/participantDetails/:participantId', async (req, res) => {
+  const { participantId } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+
+    // Get participant info
+    const partRes = await connection.execute(
+      `SELECT participant_id, full_name, email, phone_number, address FROM Participant WHERE participant_id = :id`,
+      [participantId], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if (partRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Participant not found' });
+    }
+
+    const participant = {};
+    for (let key in partRes.rows[0]) participant[key.toLowerCase()] = partRes.rows[0][key];
+
+    // Get their tickets with event + venue details
+    const ticketsRes = await connection.execute(
+      `SELECT 
+         t.ticket_id, t.ticket_type, t.price, TO_CHAR(t.booking_date, 'YYYY-MM-DD') AS booking_date,
+         e.event_name, TO_CHAR(e.event_date, 'YYYY-MM-DD') AS event_date, e.event_time, e.event_type,
+         v.venue_name, v.location AS venue_city
+       FROM Ticket t
+       JOIN Event e ON t.event_id = e.event_id
+       LEFT JOIN Venue v ON e.venue_id = v.venue_id
+       WHERE t.participant_id = :id
+       ORDER BY t.ticket_id ASC`,
+      [participantId], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    const tickets = ticketsRes.rows.map(row => {
+      const r = {};
+      for (let key in row) r[key.toLowerCase()] = row[key];
+      return r;
+    });
+
+    res.json({ participant, tickets, ticketCount: tickets.length });
+  } catch (err) {
+    console.error('Participant Details Error:', err);
+    res.status(500).json({ error: 'Database error: ' + err.message });
+  } finally {
+    if (connection) { try { await connection.close(); } catch(e){} }
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });

@@ -51,6 +51,7 @@ function loadAdminData() {
     loadAnalyticsEvents();
     loadVenuesForOccupancy();
     loadEventsForBulkTickets();
+    loadParticipantDirectory();
 }
 
 // ===============================
@@ -385,22 +386,85 @@ document.getElementById('bulkTicketForm').addEventListener('submit', function(e)
 });
 
 // ===============================
-// PARTICIPANT LOOKUP
+// PARTICIPANT DIRECTORY
+// ===============================
+function loadParticipantDirectory() {
+    fetch("http://localhost:3000/admin/participants")
+    .then(res => res.json())
+    .then(data => {
+        const tbody = document.getElementById('participantDirectoryBody');
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No participants found</td></tr>';
+            return;
+        }
+        data.forEach(p => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.participant_id}</td>
+                    <td>${p.full_name}</td>
+                    <td>${p.email}</td>
+                    <td>${p.phone_number}</td>
+                    <td><button class="btn-primary" style="padding:6px 14px; font-size:12px;" onclick="lookupParticipant(${p.participant_id})">View</button></td>
+                </tr>
+            `;
+        });
+    })
+    .catch(err => console.error(err));
+}
+
+function lookupParticipant(id) {
+    document.getElementById('participantCheckId').value = id;
+    checkParticipantTickets();
+}
+
+// ===============================
+// PARTICIPANT LOOKUP (Enhanced)
 // ===============================
 function checkParticipantTickets() {
     const participantId = document.getElementById('participantCheckId').value;
     if(!participantId) { alert('Please enter a Participant ID'); return; }
 
-    fetch(`http://localhost:3000/plsql/participantTickets/${participantId}`)
-    .then(res => res.json())
+    fetch(`http://localhost:3000/admin/participantDetails/${participantId}`)
+    .then(res => {
+        if (!res.ok) throw new Error('Participant not found');
+        return res.json();
+    })
     .then(data => {
+        const p = data.participant;
+        document.getElementById('participantResultName').innerText = p.full_name;
+        document.getElementById('participantResultEmail').innerText = p.email;
         document.getElementById('ticketCountResult').innerText = data.ticketCount;
-        document.getElementById('participantResultName').innerText = `Participant #${data.participantId}`;
+
+        const tbody = document.getElementById('participantTicketDetailsBody');
+        tbody.innerHTML = '';
+
+        if (data.tickets.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">No tickets found for this participant</td></tr>';
+        } else {
+            data.tickets.forEach(t => {
+                const badgeClass = t.ticket_type === 'VIP' ? 'badge-vip' : 'badge-regular';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${t.ticket_id}</td>
+                        <td>${t.event_name}</td>
+                        <td>${t.event_date}</td>
+                        <td>${t.event_time}</td>
+                        <td>${t.venue_name || '—'}</td>
+                        <td>${t.venue_city || '—'}</td>
+                        <td><span class="badge-pill ${badgeClass}">${t.ticket_type}</span></td>
+                        <td class="price-tag">${Number(t.price).toLocaleString()} PKR</td>
+                        <td>${t.booking_date}</td>
+                    </tr>
+                `;
+            });
+        }
+
         document.getElementById('participantTicketsResult').style.display = 'block';
     })
     .catch(err => {
         console.error(err);
-        alert('Error checking participant tickets');
+        alert('Participant not found or error occurred');
     });
 }
 
