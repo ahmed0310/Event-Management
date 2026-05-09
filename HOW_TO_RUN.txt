@@ -1,0 +1,553 @@
+================================================================================
+                    HOW TO RUN THE PROJECT - COMPLETE GUIDE
+================================================================================
+
+This document explains exactly how to run the Event Management System with
+Phase 4 PL/SQL integration.
+
+================================================================================
+PART 1: PREREQUISITES (What You Need)
+================================================================================
+
+Before starting, you MUST have:
+
+1. NODE.JS
+   - Download from: https://nodejs.org/
+   - Recommended: LTS version (18.x or 20.x)
+   - Verify: Open terminal/cmd and type: node --version
+   
+2. ORACLE DATABASE
+   - Oracle Database 11g or later (ANY edition)
+   - OR Oracle Instant Client if you don't want full database
+   - Download: https://www.oracle.com/database/
+   
+3. ORACLE INSTANT CLIENT (if not using full database)
+   - Download: https://www.oracle.com/database/technologies/instant-client/
+   - This is the CLIENT only, doesn't include the server
+   - Needed for Node.js to connect to Oracle database
+
+4. TEXT EDITOR or IDE
+   - VS Code (recommended): https://code.visualstudio.com/
+   - Or any editor you prefer
+
+5. ORACLE SQL TOOL
+   - SQL*Plus: Comes with Oracle Database
+   - SQL Developer: Free download from Oracle
+   - DBeaver: Free download from dbeaver.io
+   - Needed to execute SQL scripts
+
+================================================================================
+PART 2: QUICK START (10 Minutes)
+================================================================================
+
+STEP 1: Extract/Clone the Project
+├─ Option A: If you have ZIP file
+│  └─ Extract Event-Management.zip to any folder
+├─ Option B: If you have Git
+│  └─ git clone https://github.com/ahmed0310/Event-Management.git
+│     cd Event-Management
+│     git checkout phase-4-implementation
+└─ Open the folder in your editor
+
+STEP 2: Open Terminal/Command Prompt
+├─ On Windows: Press Win+R, type "cmd", press Enter
+├─ On macOS: Press Cmd+Space, type "terminal", press Enter
+└─ On Linux: Open any terminal
+
+STEP 3: Navigate to Project Folder
+├─ Type: cd path/to/Event-Management
+└─ Example: cd C:\Users\Ahmed\Desktop\Event-Management
+
+STEP 4: Install Node Modules (Download Libraries)
+├─ Type: npm install
+├─ Wait for it to complete (2-3 minutes)
+└─ You should see "added XX packages"
+
+STEP 5: Create .env File
+├─ In the project folder, create a new file named ".env" (no extension)
+├─ Add these lines:
+│  DB_USER=system
+│  DB_PASSWORD=your_password_here
+│  DB_CONNECTION_STRING=localhost:1521/XE
+│  PORT=3000
+└─ Replace "your_password_here" with your actual Oracle password
+
+STEP 6: Load Database Schema
+├─ Open SQL*Plus or SQL Developer
+├─ Connect to your Oracle database
+├─ Open and execute these files IN ORDER:
+│  1. 01_CREATE_TABLES.sql
+│  2. 02_INSERT_DATA.sql
+│  3. 03_CONSTRAINTS.sql
+│  4. 04_VIEWS.sql
+│  5. 05_INDEXES.sql
+│  6. 06_PLSQL.sql (This is Phase 4 with all procedures, functions, triggers)
+└─ Wait for each to complete successfully
+
+STEP 7: Start the Server
+├─ In terminal, type: node server.js
+├─ You should see: "Server listening at http://localhost:3000"
+└─ Leave this terminal open while using the application
+
+STEP 8: Open in Browser
+├─ Public Website: http://localhost:3000
+├─ Admin Dashboard: http://localhost:3000/admin.html (password: admin)
+└─ Done! The application is running
+
+================================================================================
+PART 3: DETAILED SETUP INSTRUCTIONS
+================================================================================
+
+A. INSTALLING NODE.JS
+
+1. Go to https://nodejs.org/
+2. Download LTS version (not Current)
+3. Install it (accept all defaults)
+4. Restart your computer
+5. Verify: Open terminal and type: node --version
+
+You should see something like: v18.17.0
+
+B. INSTALLING ORACLE INSTANT CLIENT
+
+Windows:
+├─ 1. Download from https://www.oracle.com/database/technologies/instant-client/
+├─ 2. Choose Windows (64-bit) - Basic package is enough
+├─ 3. Extract to C:\oracle\instantclient_21_13 (or any location)
+├─ 4. Add to Windows PATH:
+│  ├─ Right-click "This PC" → Properties
+│  ├─ Advanced system settings
+│  ├─ Environment Variables
+│  ├─ New variable: Name=OCI_LIB_DIR, Value=C:\oracle\instantclient_21_13
+│  └─ Also add C:\oracle\instantclient_21_13 to PATH
+└─ 5. Restart your computer
+
+macOS:
+├─ 1. brew install oracle-instantclient
+└─ 2. Should install automatically
+
+Linux (Ubuntu):
+├─ 1. Download from Oracle website
+├─ 2. Extract to /opt/oracle/instantclient_21_13
+├─ 3. Add to .bashrc: export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_13:$LD_LIBRARY_PATH
+└─ 4. Run: source ~/.bashrc
+
+C. CREATING .ENV FILE
+
+1. Open your text editor (Notepad, VS Code, etc.)
+2. Create a new file
+3. Add these lines:
+
+   DB_USER=system
+   DB_PASSWORD=MyPassword123
+   DB_CONNECTION_STRING=localhost:1521/XE
+   PORT=3000
+
+   For different Oracle versions:
+   - Oracle 21c XE: localhost:1521/XE
+   - Oracle 11g: localhost:1521/orcl
+   - Remote database: hostname:port/service_name
+
+4. Save as: .env (yes, with a dot at the beginning)
+5. Place it in the project root folder (same folder as package.json)
+
+D. LOADING DATABASE SCHEMA
+
+Using SQL Developer:
+1. Open SQL Developer
+2. Create a connection to your Oracle database
+3. For each SQL file (in order):
+   ├─ File → Open
+   ├─ Select the SQL file
+   ├─ Click the "Run" button (green play button)
+   └─ Wait for completion
+
+Using SQL*Plus (Command Line):
+1. Open Command Prompt/Terminal
+2. Type: sqlplus system/password@XE
+3. When connected, type: @01_CREATE_TABLES.sql
+4. Then: @02_INSERT_DATA.sql
+5. Then: @03_CONSTRAINTS.sql
+6. Then: @04_VIEWS.sql
+7. Then: @05_INDEXES.sql
+8. Then: @06_PLSQL.sql
+9. Type: EXIT; to close
+
+E. STARTING THE NODE SERVER
+
+1. Open Terminal/Command Prompt
+2. Navigate to project folder
+3. Type: node server.js
+4. You should see: "Server listening at http://localhost:3000"
+5. DO NOT CLOSE THIS TERMINAL - Keep it open
+
+If you see an error:
+├─ Check if Oracle database is running
+├─ Check if .env file exists and has correct credentials
+├─ Check if node_modules folder exists (if not, run npm install)
+└─ Check error message for specific issue
+
+F. ACCESSING THE APPLICATION
+
+In your web browser, go to:
+
+Public Site:
+   http://localhost:3000
+   
+   Features:
+   - View events
+   - Book tickets
+   - Dashboard with live analytics
+   - Top events by revenue
+
+Admin Panel:
+   http://localhost:3000/admin.html
+   
+   Password: admin
+   
+   Features:
+   - Create new events
+   - Register participants
+   - View event analytics
+   - Generate venue reports
+   - Create bulk tickets
+   - Check participant bookings
+
+================================================================================
+PART 4: PHASE 4 FEATURES TESTING
+================================================================================
+
+FEATURE 1: Dashboard Analytics (PUBLIC)
+How to test:
+1. Go to http://localhost:3000
+2. Scroll to "Dashboard Analytics" section
+3. Check if numbers are showing (not "-")
+4. Check "Top Events by Revenue" table
+5. Should show real event names and revenue from database
+
+What it uses:
+- SQL functions: COUNT(*), SUM()
+- PL/SQL Function: fnCalculateTotalEventRevenue
+- Data from: Event and Ticket tables
+
+FEATURE 2: Event Revenue Display (PUBLIC)
+How to test:
+1. Go to http://localhost:3000
+2. In "Top Events by Revenue" table
+3. Should show events sorted by highest revenue first
+4. Numbers should match database records
+
+What it uses:
+- PL/SQL Function: fnCalculateTotalEventRevenue
+
+FEATURE 3: Register Participant (ADMIN)
+How to test:
+1. Go to http://localhost:3000/admin.html
+2. Password: admin
+3. Scroll to "Register New Participant" section
+4. Fill in: Name, Gender (M/F), Email, Phone, Address
+5. Click "Register Participant"
+6. Should see: "✅ Participant registered successfully!"
+
+What it uses:
+- PL/SQL Procedure: procRegisterParticipant
+- Input validation: Gender must be M or F
+- Email uniqueness check
+- Exception handling for errors
+
+FEATURE 4: Event Analytics (ADMIN)
+How to test:
+1. Go to http://localhost:3000/admin.html (password: admin)
+2. Scroll to "Event Analytics" section
+3. Select an event from dropdown
+4. Click "Load Analytics"
+5. Should show:
+   - Event name
+   - Budget (from database)
+   - Revenue (calculated by fnCalculateTotalEventRevenue)
+   - Profit (Revenue - Budget)
+   - Profit Margin % (Profit / Revenue * 100)
+
+What it uses:
+- PL/SQL Function: fnCalculateTotalEventRevenue
+- Mathematical calculations in JavaScript
+- Event table for budget
+
+FEATURE 5: Venue Occupancy Report (ADMIN)
+How to test:
+1. Go to http://localhost:3000/admin.html (password: admin)
+2. Scroll to "Venue Occupancy Report" section
+3. Select a venue from dropdown
+4. Click "Generate Report"
+5. Should show:
+   - Venue name and capacity
+   - All events at that venue
+   - Attendee count for each
+   - Occupancy percentage for each
+
+What it uses:
+- PL/SQL Explicit Cursor
+- Event and Ticket tables
+- Calculation: (Attendees / Capacity) * 100
+
+FEATURE 6: Bulk Ticket Generation (ADMIN)
+How to test:
+1. Go to http://localhost:3000/admin.html (password: admin)
+2. Scroll to "Bulk Ticket Generation" section
+3. Select an event
+4. Choose ticket type (VIP, Regular, Standard)
+5. Enter price (e.g., 2000)
+6. Enter quantity (e.g., 50)
+7. Click "Generate Bulk Tickets"
+8. Should see: "✅ Generated 50 tickets successfully!"
+
+What it uses:
+- PL/SQL Package: pkgEventManagement
+- Loop to create multiple tickets
+- Ticket table insertion
+
+FEATURE 7: Participant Lookup (ADMIN)
+How to test:
+1. Go to http://localhost:3000/admin.html (password: admin)
+2. Scroll to "Check Participant Bookings" section
+3. Enter a participant ID (try 1, 2, 3, etc.)
+4. Click "Check Tickets"
+5. Should show: Total tickets booked by that participant
+
+What it uses:
+- PL/SQL Function: fnGetParticipantTicketCount
+- Participant and Ticket tables
+- COUNT(*) with WHERE clause
+
+================================================================================
+PART 5: FILE STRUCTURE
+================================================================================
+
+Project Root/
+│
+├── DATABASE SETUP FILES:
+│   ├── 01_CREATE_TABLES.sql     ← Run 1st (creates all tables)
+│   ├── 02_INSERT_DATA.sql       ← Run 2nd (adds sample data)
+│   ├── 03_CONSTRAINTS.sql       ← Run 3rd (foreign keys)
+│   ├── 04_VIEWS.sql             ← Run 4th (SQL views)
+│   ├── 05_INDEXES.sql           ← Run 5th (performance indexes)
+│   └── 06_PLSQL.sql             ← Run 6th (PHASE 4: Procedures, Functions, Triggers)
+│
+├── BACKEND (Node.js):
+│   ├── server.js                ← Main server file (8 new endpoints)
+│   ├── db.js                    ← Oracle connection manager
+│   └── package.json             ← Node.js dependencies
+│
+├── FRONTEND (HTML/JavaScript):
+│   ├── index.html               ← Public website
+│   ├── admin.html               ← Admin panel
+│   ├── script.js                ← Public website logic
+│   ├── admin.js                 ← Admin logic
+│   └── style.css                ← Styling
+│
+├── CONFIGURATION:
+│   └── .env                     ← CREATE THIS: Database credentials
+│
+└── DOCUMENTATION:
+    ├── QUICK_START.txt          ← Quick 5-minute guide
+    ├── HOW_TO_RUN.txt           ← This file
+    ├── SETUP_AND_RUN_GUIDE.md   ← Detailed guide
+    ├── PHASE4_DOCUMENTATION.md  ← PL/SQL details
+    └── More documentation...
+
+================================================================================
+PART 6: TROUBLESHOOTING
+================================================================================
+
+PROBLEM 1: "npm: command not found"
+SOLUTION: Node.js not installed. Download from https://nodejs.org/
+
+PROBLEM 2: "Cannot find module 'oracledb'"
+SOLUTION: npm install didn't work properly
+├─ Try: npm cache clean --force
+├─ Try: npm install --build-from-source
+└─ If still fails: Reinstall Oracle Instant Client
+
+PROBLEM 3: "ORA-12514: TNS:listener does not currently know of service"
+SOLUTION: Database connection issue
+├─ Check if Oracle database is running
+├─ Check DB_CONNECTION_STRING in .env
+├─ For Oracle XE, it should be: localhost:1521/XE
+├─ Try: sqlplus system/password@XE (to test connection)
+└─ If this fails, your database credentials are wrong
+
+PROBLEM 4: "ORA-01017: invalid username/password"
+SOLUTION: Wrong credentials in .env file
+├─ Edit .env file
+├─ Check DB_USER (usually "system")
+├─ Check DB_PASSWORD (your Oracle password)
+└─ Save and restart: node server.js
+
+PROBLEM 5: "listen EADDRINUSE :::3000"
+SOLUTION: Port 3000 already in use
+├─ Option A: Close the other application using port 3000
+├─ Option B: Edit .env file, change PORT=3000 to PORT=3001
+│          Then go to http://localhost:3001
+├─ Option C: Kill the process
+│  ├─ Windows: netstat -ano | findstr :3000
+│  │          taskkill /PID <PID> /F
+│  └─ macOS/Linux: lsof -i :3000
+│                  kill -9 <PID>
+
+PROBLEM 6: "Cannot GET /admin.html"
+SOLUTION: Server is running but files not found
+├─ Check if admin.html exists in project root
+├─ Make sure server.js is in the same folder as HTML files
+└─ Restart server: node server.js
+
+PROBLEM 7: "ORA-00959: table or view does not exist"
+SOLUTION: Database schema not loaded
+├─ SQL scripts weren't executed
+├─ Run all 6 SQL scripts in order:
+│  1. 01_CREATE_TABLES.sql
+│  2. 02_INSERT_DATA.sql
+│  3. 03_CONSTRAINTS.sql
+│  4. 04_VIEWS.sql
+│  5. 05_INDEXES.sql
+│  6. 06_PLSQL.sql
+
+PROBLEM 8: "Module not found" or "npm ERR!"
+SOLUTION: Dependencies not installed
+├─ Delete node_modules folder (if exists)
+├─ Delete package-lock.json (if exists)
+├─ Run: npm install
+└─ Wait for completion (2-3 minutes)
+
+PROBLEM 9: Database credentials are correct but still can't connect
+SOLUTION: Oracle Instant Client not installed
+├─ Download Oracle Instant Client
+├─ Extract to a location
+├─ Add to system PATH
+├─ Restart your computer
+├─ Try again
+
+PROBLEM 10: "Module could not be found"
+SOLUTION: Make sure you're in the right folder
+├─ Type: pwd (macOS/Linux) or cd (Windows)
+├─ Should show: /path/to/Event-Management
+├─ If not: cd /path/to/Event-Management
+└─ Then: node server.js
+
+================================================================================
+PART 7: QUICK COMMAND REFERENCE
+================================================================================
+
+Installing dependencies:
+   npm install
+
+Starting server:
+   node server.js
+
+Opening project folder in VS Code:
+   code .
+
+Stopping server:
+   Press Ctrl+C in the terminal
+
+Connecting to Oracle database (test):
+   sqlplus system/password@XE
+
+Checking if port 3000 is in use:
+   Windows: netstat -ano | findstr :3000
+   macOS/Linux: lsof -i :3000
+
+Installing a specific package:
+   npm install package-name
+
+Clearing npm cache:
+   npm cache clean --force
+
+Reinstalling node_modules:
+   rm -rf node_modules package-lock.json
+   npm install
+
+================================================================================
+PART 8: DATABASE CREDENTIALS EXAMPLES
+================================================================================
+
+FOR ORACLE 21C EXPRESS EDITION (XE):
+   DB_USER=system
+   DB_PASSWORD=YourPasswordHere
+   DB_CONNECTION_STRING=localhost:1521/XE
+
+FOR ORACLE 11G:
+   DB_USER=system
+   DB_PASSWORD=YourPasswordHere
+   DB_CONNECTION_STRING=localhost:1521/orcl
+
+FOR ORACLE DATABASE IN DOCKER:
+   DB_USER=system
+   DB_PASSWORD=YourPasswordHere
+   DB_CONNECTION_STRING=localhost:1521/XE
+
+FOR ORACLE DATABASE IN CLOUD (e.g., Oracle Cloud):
+   DB_USER=admin
+   DB_PASSWORD=YourPasswordHere
+   DB_CONNECTION_STRING=hostname.region.oraclecloud.com:1521/yourdatabasename
+
+FOR AUTONOMOUS DATABASE:
+   DB_USER=admin
+   DB_PASSWORD=YourPasswordHere
+   DB_CONNECTION_STRING=adb123456_adwc.us-ashburn-1.oraclecloud.com:1522/adb123456_adwc
+
+================================================================================
+PART 9: NEXT STEPS AFTER SETUP
+================================================================================
+
+1. Test all features:
+   ├─ Create events
+   ├─ Book tickets
+   ├─ Register participants
+   ├─ View analytics
+   └─ Check reports
+
+2. Add more sample data:
+   ├─ Create more events
+   ├─ Register more participants
+   └─ Generate more bookings
+
+3. Explore the code:
+   ├─ Open server.js to see API endpoints
+   ├─ Open admin.js to see PL/SQL integration
+   ├─ Open 06_PLSQL.sql to see database procedures
+
+4. Deploy to production:
+   ├─ Install PM2: npm install -g pm2
+   ├─ Start with PM2: pm2 start server.js
+   ├─ Make persistent: pm2 startup
+   └─ Deploy to cloud (Vercel, Heroku, AWS, etc.)
+
+5. Read documentation:
+   ├─ PHASE4_DOCUMENTATION.md for PL/SQL details
+   ├─ PHASE4_FRONTEND_INTEGRATION.md for frontend features
+   └─ PHASE4_ALL_CHANGES.txt for complete changes
+
+================================================================================
+SUMMARY
+================================================================================
+
+Quick Start (10 minutes):
+1. npm install
+2. Create .env file
+3. Execute SQL scripts (01 through 06)
+4. node server.js
+5. http://localhost:3000
+
+Admin Features:
+- Password: admin
+- 6 major features powered by Phase 4 PL/SQL
+- Event analytics, venue reports, participant registration, etc.
+
+If you get stuck:
+- Check "PART 6: Troubleshooting" above
+- Read SETUP_AND_RUN_GUIDE.md
+- Check console for error messages
+
+READY? Let's go!
+
+================================================================================

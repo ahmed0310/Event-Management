@@ -1,0 +1,295 @@
+================================================================================
+EVENT MANAGEMENT SYSTEM - QUICK START GUIDE (5 MINUTES)
+================================================================================
+
+PREREQUISITES CHECKLIST:
+✓ Node.js installed (node --version)
+✓ Oracle Database running (or Instant Client installed)
+✓ Oracle database credentials ready
+
+================================================================================
+STEP 1: INSTALL DEPENDENCIES (30 seconds)
+================================================================================
+
+Navigate to project folder and run:
+    npm install
+
+This installs: express, cors, oracledb, dotenv
+
+================================================================================
+STEP 2: CREATE .env FILE (1 minute)
+================================================================================
+
+Create a file named ".env" in the project root with:
+
+    DB_USER=system
+    DB_PASSWORD=your_oracle_password
+    DB_CONNECTION_STRING=localhost:1521/XE
+    PORT=3000
+
+Replace "your_oracle_password" with your actual Oracle password.
+
+For different Oracle versions:
+- Oracle 21c XE: localhost:1521/XE
+- Oracle 11g: localhost:1521/orcl
+- Custom: host:port/service_name
+
+================================================================================
+STEP 3: LOAD DATABASE SCHEMA (2 minutes)
+================================================================================
+
+Open Oracle SQL*Plus or SQL Developer and execute:
+
+    @01_CREATE_TABLES.sql
+    @02_INSERT_DATA.sql
+    @03_CONSTRAINTS.sql
+    @04_VIEWS.sql
+    @05_INDEXES.sql
+    @06_PLSQL.sql
+
+Execute them IN THIS ORDER. This creates all tables, data, views, indexes,
+and Phase 4 PL/SQL components (procedures, functions, triggers, cursors, package).
+
+================================================================================
+STEP 4: START THE SERVER (10 seconds)
+================================================================================
+
+Run:
+    node server.js
+
+You should see:
+    Server listening at http://localhost:3000
+
+If you see an error, check:
+- Is Oracle database running?
+- Is .env file created with correct credentials?
+- Is Oracle Instant Client installed?
+
+================================================================================
+STEP 5: ACCESS THE APPLICATION
+================================================================================
+
+OPEN IN BROWSER:
+
+Public Website:
+    http://localhost:3000
+
+Admin Dashboard (Password: "admin"):
+    http://localhost:3000/admin.html
+
+================================================================================
+PUBLIC FEATURES (index.html):
+================================================================================
+
+Dashboard Analytics:
+- Shows live event count, ticket count, sponsor count, etc.
+- Shows top 5 events by revenue (powered by fnCalculateTotalEventRevenue)
+- All data from Oracle database via PL/SQL functions
+
+Events Listing:
+- Browse all events
+- View event details
+- Book tickets
+
+================================================================================
+ADMIN FEATURES (admin.html) - Password: "admin":
+================================================================================
+
+1. Create New Event
+   - Add event name, date, time, budget, venue, organizer
+   - Stores in database
+
+2. Register Participant (procRegisterParticipant)
+   - Full name, gender (M/F), email, phone, address
+   - Validates input, checks email uniqueness
+
+3. Event Analytics (fnCalculateTotalEventRevenue)
+   - Select event
+   - View: Budget, Revenue, Profit, Profit Margin %
+   - All calculations from PL/SQL functions
+
+4. Venue Occupancy Report (Explicit Cursor)
+   - Select venue
+   - View all events at that venue
+   - See attendee count and occupancy percentage
+
+5. Bulk Ticket Generation (pkgEventManagement)
+   - Select event, ticket type, price, quantity
+   - Generate multiple tickets at once
+
+6. Participant Lookup (fnGetParticipantTicketCount)
+   - Enter participant ID
+   - View total tickets booked by that participant
+
+================================================================================
+PROJECT STRUCTURE:
+================================================================================
+
+Database Files:
+  01_CREATE_TABLES.sql      - Create all tables
+  02_INSERT_DATA.sql        - Insert sample data
+  03_CONSTRAINTS.sql        - Add foreign keys
+  04_VIEWS.sql              - Create views
+  05_INDEXES.sql            - Create indexes
+  06_PLSQL.sql              - Phase 4: PL/SQL (procedures, functions, triggers, cursors, package)
+
+Backend:
+  server.js                 - Express server (8 new API endpoints for PL/SQL)
+  db.js                     - Oracle connection manager
+
+Frontend:
+  index.html                - Public website with dashboard
+  admin.html                - Admin panel (password protected)
+  script.js                 - Public website JavaScript
+  admin.js                  - Admin panel JavaScript
+  style.css                 - Styling
+
+Configuration:
+  package.json              - Node.js dependencies
+  .env                      - Environment variables (CREATE THIS)
+
+Documentation:
+  SETUP_AND_RUN_GUIDE.md    - Detailed setup instructions
+  PHASE4_DOCUMENTATION.md   - PL/SQL implementation details
+  PHASE4_FRONTEND_INTEGRATION.md
+  PHASE4_ALL_CHANGES.txt
+  And more...
+
+================================================================================
+COMMON ERRORS & FIXES:
+================================================================================
+
+ERROR: "Cannot find module 'oracledb'"
+FIX: npm install oracledb
+
+ERROR: "ORA-12514: TNS:listener does not currently know of service"
+FIX: Check DB_CONNECTION_STRING in .env (should be localhost:1521/XE)
+
+ERROR: "ORA-01017: invalid username/password"
+FIX: Check DB_USER and DB_PASSWORD in .env
+
+ERROR: "Port 3000 already in use"
+FIX: Change PORT in .env to 3001 or close other app using 3000
+
+ERROR: "Cannot find module 'express'"
+FIX: Run "npm install" first
+
+================================================================================
+TESTING PL/SQL FEATURES:
+================================================================================
+
+1. Dashboard (PUBLIC):
+   - Go to http://localhost:3000
+   - See live statistics
+   - See top events by revenue
+
+2. Register Participant (ADMIN):
+   - Go to admin panel (password: admin)
+   - Fill registration form
+   - Click "Register Participant"
+   - Check success message
+
+3. Event Analytics (ADMIN):
+   - Select event from dropdown
+   - Click "Load Analytics"
+   - View Budget, Revenue, Profit
+
+4. Venue Report (ADMIN):
+   - Select venue
+   - Click "Generate Report"
+   - View events and occupancy %
+
+5. Bulk Tickets (ADMIN):
+   - Select event, type, price, quantity
+   - Click "Generate Bulk Tickets"
+   - See success message
+
+6. Participant Lookup (ADMIN):
+   - Enter participant ID
+   - Click "Check Tickets"
+   - See total booked tickets
+
+================================================================================
+DEFAULT SAMPLE DATA:
+================================================================================
+
+After running 02_INSERT_DATA.sql, you have:
+
+Events:
+- Tech Conference 2024
+- Music Festival Spring
+- Sports Championship
+- Art Exhibition
+- Business Summit
+
+Venues:
+- Grand Hall (Capacity: 1000)
+- Stadium (Capacity: 5000)
+- Convention Center (Capacity: 2000)
+- Theater (Capacity: 500)
+
+Try creating more events or registering participants to test features!
+
+================================================================================
+API ENDPOINTS:
+================================================================================
+
+PUBLIC ENDPOINTS:
+GET    /dashboard                           - Dashboard statistics
+GET    /events                              - List all events
+POST   /bookTicket                          - Book a ticket
+GET    /plsql/eventRevenue/:eventId         - fnCalculateTotalEventRevenue
+GET    /plsql/eventOrganizer/:eventId       - fnGetEventOrganizerName
+
+ADMIN ENDPOINTS:
+POST   /admin/events                        - Create event
+POST   /plsql/registerParticipant           - procRegisterParticipant
+GET    /admin/plsql/eventSummary/:eventId   - Event analytics
+GET    /admin/plsql/venueOccupancy/:venueId - Venue report (cursor)
+POST   /admin/plsql/bulkTicketGeneration    - Bulk tickets (package)
+GET    /plsql/participantTickets/:id        - fnGetParticipantTicketCount
+
+================================================================================
+PHASE 4 PL/SQL COMPONENTS:
+================================================================================
+
+PROCEDURES (4):
+1. procAddEvent                  - Add new event
+2. procRegisterParticipant       - Register participant
+3. procProcessPayment            - Process payment
+4. procUpdateTicketBooking       - Update ticket booking
+
+FUNCTIONS (3):
+1. fnCalculateTotalEventRevenue  - Get event revenue
+2. fnGetEventOrganizerName       - Get organizer name
+3. fnGetParticipantTicketCount   - Count participant tickets
+
+TRIGGERS (3):
+1. trgBeforeEventInsert          - Auto-generate event ID
+2. trgAfterPaymentUpdate         - Audit payment changes
+3. trgAfterTicketDelete          - Archive deleted tickets
+
+CURSORS (2):
+1. Explicit cursor               - Process events
+2. Parameterized cursor          - Venue occupancy
+
+PACKAGE (1):
+1. pkgEventManagement            - Contains procedures & functions
+
+ANONYMOUS BLOCKS (7+):
+- Testing & demonstration blocks
+
+================================================================================
+READY TO GO! 
+================================================================================
+
+You now have:
+✓ Node.js server running
+✓ Oracle database connected
+✓ Phase 4 PL/SQL features implemented
+✓ Admin panel with 6 major features
+✓ Public dashboard with live analytics
+
+Questions? Check SETUP_AND_RUN_GUIDE.md for detailed instructions.
+
+Happy coding!
