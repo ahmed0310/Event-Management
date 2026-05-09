@@ -129,7 +129,7 @@ DB_CONNECTION_STRING=your_connection_string
 ### Step 4: Set Up the Database
 Run the SQL in `queries.sql` using SQL*Plus or Oracle APEX to create all tables, views, indexes, and PL/SQL objects:
 ```bash
-sqlplus RANDOMS/1234@127.0.0.1:1521/xe @queries.sql
+sqlplus user_name/password@connection_string @queries.sql
 ```
 
 ### Step 5: Insert Sample Data
