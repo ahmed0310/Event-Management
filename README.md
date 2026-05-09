@@ -121,9 +121,9 @@ npm install
 Edit the `.env` file with your Oracle credentials:
 ```env
 PORT=3000
-DB_USER=RANDOMS
-DB_PASSWORD=1234
-DB_CONNECTION_STRING=127.0.0.1:1521/xe
+DB_USER=your_user_name
+DB_PASSWORD=your_password
+DB_CONNECTION_STRING=your_connection_string
 ```
 
 ### Step 4: Set Up the Database
