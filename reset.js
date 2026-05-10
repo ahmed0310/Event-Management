@@ -1,4 +1,4 @@
-const { getConnection } = require('./db');
+const { getConnection, oracledb } = require('./db');
 
 async function resetDatabase() {
   let connection;
@@ -6,25 +6,8 @@ async function resetDatabase() {
     connection = await getConnection();
     console.log("Connected to Database. Starting reset process...");
 
-    // Step 1: Disable triggers that interfere with DELETE
-    const triggersToDisable = [
-      'trgAfterTicketDelete'
-    ];
-
-    for (let trigger of triggersToDisable) {
-      try {
-        await connection.execute(`ALTER TRIGGER ${trigger} DISABLE`);
-        console.log(`⏸  Disabled trigger: ${trigger}`);
-      } catch (err) {
-        // Trigger might not exist, that's fine
-        console.log(`⚠  Trigger ${trigger} not found or already disabled`);
-      }
-    }
-
-    // Step 2: Clear all tables in correct dependency order (child → parent)
+    // Array of tables in order of dependencies (child to parent)
     const tables = [
-      'DeletedTickets',
-      'AuditLog',
       'Payment',
       'Ticket',
       'Schedule',
@@ -41,21 +24,7 @@ async function resetDatabase() {
         await connection.execute(`DELETE FROM ${table}`);
         console.log(`✅ Emptied table: ${table}`);
       } catch (err) {
-        if (err.message.includes('table or view does not exist')) {
-          console.log(`⚠  Table ${table} does not exist, skipping`);
-        } else {
-          console.error(`❌ Failed to empty table ${table}:`, err.message);
-        }
-      }
-    }
-
-    // Step 3: Re-enable triggers
-    for (let trigger of triggersToDisable) {
-      try {
-        await connection.execute(`ALTER TRIGGER ${trigger} ENABLE`);
-        console.log(`▶  Re-enabled trigger: ${trigger}`);
-      } catch (err) {
-        console.log(`⚠  Could not re-enable trigger ${trigger}`);
+        console.error(`❌ Failed to empty table ${table}:`, err.message);
       }
     }
 
@@ -67,7 +36,11 @@ async function resetDatabase() {
     console.error("Error connecting to database:", err);
   } finally {
     if (connection) {
-      try { await connection.close(); } catch (err) { console.error(err); }
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 }
